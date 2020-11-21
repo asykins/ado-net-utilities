@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoNetCoreUtilities.Extensions", "AdoNetCoreUtilities.Extensions\AdoNetCoreUtilities.Extensions.csproj", "{E9997F2A-03ED-4A4E-80DB-ABF85C2AD183}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdoNetCoreUtilities.Classes", "AdoNetCoreUtilities.Classes\AdoNetCoreUtilities.Classes.csproj", "{F303AC7E-08E9-4667-9AD1-17E083161834}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoNetCoreUtilities.Classes", "AdoNetCoreUtilities.Classes\AdoNetCoreUtilities.Classes.csproj", "{F303AC7E-08E9-4667-9AD1-17E083161834}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdoNetCoreUtilities.Domain", "AdoNetCoreUtilities.Domain\AdoNetCoreUtilities.Domain.csproj", "{FEF34642-1C82-4D8D-8523-A584596F54C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdoNetCoreUtilities.Domain", "AdoNetCoreUtilities.Domain\AdoNetCoreUtilities.Domain.csproj", "{FEF34642-1C82-4D8D-8523-A584596F54C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdoNetCoreUtilities.ConsoleApplication", "AdoNetCoreUtilities.ConsoleApplication\AdoNetCoreUtilities.ConsoleApplication.csproj", "{30407378-6E32-4AF0-843F-58DE3F4FFD22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{FEF34642-1C82-4D8D-8523-A584596F54C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEF34642-1C82-4D8D-8523-A584596F54C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEF34642-1C82-4D8D-8523-A584596F54C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30407378-6E32-4AF0-843F-58DE3F4FFD22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30407378-6E32-4AF0-843F-58DE3F4FFD22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30407378-6E32-4AF0-843F-58DE3F4FFD22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30407378-6E32-4AF0-843F-58DE3F4FFD22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

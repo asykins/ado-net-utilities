@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AdoNetCoreUtilities.Classes
 {
-    public abstract class AbstractSqlRepository<T> : IAbstractSqlRepository<T>
+    public abstract class AbstractSqlRepository<T> : ISqlRepository<T>
         where T: class, new()
     {
         private readonly IConfiguration configuration;
