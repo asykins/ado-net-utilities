@@ -81,6 +81,8 @@ namespace AdoNetCoreUtilities.Classes
                                 VALUES ({properties.Select(x => $"SOURCE.{x.Value}").Aggregate((current, previous) => $"{current}, {previous}")})
                             ;";
 
+                            await connection.OpenAsync();
+
                             await command.ExecuteNonQueryAsync();
 
                             await DropTable(temporaryTableName);
