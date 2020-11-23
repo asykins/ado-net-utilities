@@ -56,30 +56,44 @@ namespace AdoNetCoreUtilities.Classes
             {
                 using (var command = connection.CreateCommand())
                 {
-                    var temporaryTableName = await CreateTemporarySqlTable();
+                    using(var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var temporaryTableName = await CreateTemporarySqlTable();
 
-                    await BulkInsert(source, temporaryTableName);
+                            await BulkInsert(source, temporaryTableName);
 
-                    var properties = OrderAttributeExtensions.GetPropertiesOrder<T>();
+                            var properties = OrderAttributeExtensions.GetPropertiesOrder<T>();
 
-                    command.CommandText =
-                        @$"MERGE {SqlTableName} AS TARGET
+                            command.CommandText =
+                                @$"MERGE {SqlTableName} AS TARGET
                            USING {temporaryTableName} AS SOURCE
                             ON TARGET.Id == Source.Id
                            WHEN MATCHED AND {properties.Select(x => $"TARGET.{x.Value} <> SOURCE.{x.Value}")
-                                                .Aggregate((current, previous) => $"{current} OR {previous}")}
+                                                        .Aggregate((current, previous) => $"{current} OR {previous}")}
                             THEN 
                                 UPDATE SET {properties.Select(x => $"TARGET.{x.Value} = SOURCE.{x.Value}")
-                                                .Aggregate((current, previous) => $"{current}, {previous}")}
+                                                        .Aggregate((current, previous) => $"{current}, {previous}")}
                            WHEN NOT MATCHED
                             THEN
                                 INSERT ({properties.Select(x => x.Value).Aggregate((current, previous) => $"{current}, {previous}")})
                                 VALUES ({properties.Select(x => $"SOURCE.{x.Value}").Aggregate((current, previous) => $"{current}, {previous}")})
                             ;";
 
-                    await command.ExecuteNonQueryAsync();
+                            await command.ExecuteNonQueryAsync();
 
-                    await DropTable(temporaryTableName);
+                            await DropTable(temporaryTableName);
+
+                            await transaction.CommitAsync();
+                        }
+                        catch (SqlException exception)
+                        {
+                            await transaction.RollbackAsync();
+
+                            throw;
+                        }
+                    }
                 }
             }
         }
