@@ -56,7 +56,9 @@ namespace AdoNetCoreUtilities.Classes
             {
                 using (var command = connection.CreateCommand())
                 {
-                    using(var transaction = connection.BeginTransaction())
+                    await connection.OpenAsync();
+
+                    using (var transaction = connection.BeginTransaction())
                     {
                         try
                         {
@@ -80,8 +82,6 @@ namespace AdoNetCoreUtilities.Classes
                                 INSERT ({properties.Select(x => x.Value).Aggregate((current, previous) => $"{current}, {previous}")})
                                 VALUES ({properties.Select(x => $"SOURCE.{x.Value}").Aggregate((current, previous) => $"{current}, {previous}")})
                             ;";
-
-                            await connection.OpenAsync();
 
                             await command.ExecuteNonQueryAsync();
 
