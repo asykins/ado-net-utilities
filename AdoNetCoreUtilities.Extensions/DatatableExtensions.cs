@@ -17,18 +17,14 @@ namespace AdoNetCoreUtilities.Extensions
             return dataTable;
         }
 
-        public static DataTable AddDataRow<T>(this DataTable dataTable, string columnName, T value)
+        public static DataRow AddDataRowValues<T>(this DataRow dataRow, string columnName, T value)
         {
-            var dataRow = dataTable.NewRow();
-
             if (value == null)
                 dataRow[columnName] = DBNull.Value;
             else
                 dataRow[columnName] = value;
 
-            dataTable.Rows.Add(dataRow);
-
-            return dataTable;
+            return dataRow;
         }
     }
 }

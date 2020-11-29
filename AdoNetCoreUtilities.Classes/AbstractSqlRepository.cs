@@ -62,6 +62,8 @@ namespace AdoNetCoreUtilities.Classes
                     {
                         try
                         {
+                            command.Transaction = transaction;
+
                             var temporaryTableName = await CreateTemporarySqlTable();
 
                             await BulkInsert(source, temporaryTableName);
@@ -71,7 +73,7 @@ namespace AdoNetCoreUtilities.Classes
                             command.CommandText =
                                 @$"MERGE {SqlTableName} AS TARGET
                            USING {temporaryTableName} AS SOURCE
-                            ON TARGET.Id == Source.Id
+                            ON TARGET.Id = Source.Id
                            WHEN MATCHED AND {properties.Select(x => $"TARGET.{x.Value} <> SOURCE.{x.Value}")
                                                         .Aggregate((current, previous) => $"{current} OR {previous}")}
                             THEN 
@@ -163,10 +165,14 @@ namespace AdoNetCoreUtilities.Classes
 
             foreach(var item in source)
             {
+                var dataRow = dataTable.NewRow();
+
                 foreach(var property in properties)
                 {
-                    dataTable = dataTable.AddDataRow(property.Value, item.GetType().GetProperty(property.Value).GetValue(item));
+                    dataRow = dataRow.AddDataRowValues(property.Value, item.GetType().GetProperty(property.Value).GetValue(item));
                 }
+
+                dataTable.Rows.Add(dataRow);
             }
 
             return dataTable;
