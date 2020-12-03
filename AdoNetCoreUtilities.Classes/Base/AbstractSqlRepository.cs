@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdoNetCoreUtilities.Classes
+namespace AdoNetCoreUtilities.Classes.Base
 {
     public abstract class AbstractSqlRepository<TEntity, TKey> : ISqlRepository<TEntity>
         where TEntity: AdoEntityBase<TKey>, new()
@@ -50,7 +50,7 @@ namespace AdoNetCoreUtilities.Classes
         }
 
         public async Task<IEnumerable<TEntity>> GetAsync(params Func<TEntity, bool>[] functions)
-            => AggregateWhereFunctions(await GetAsync(), functions);
+            => (await GetAsync()).AggregateWhereFunctions(functions);
 
         public async Task InsertOrUpdateAsync(IEnumerable<TEntity> source)
         {
@@ -139,9 +139,6 @@ namespace AdoNetCoreUtilities.Classes
 
             return mappedData;
         }
-
-        protected IEnumerable<TEntity> AggregateWhereFunctions(IEnumerable<TEntity> source, IEnumerable<Func<TEntity, bool>> functions)
-            => functions.Aggregate(source, (source, query) => source.Where(query));
 
         private void SetBulkCopy(SqlBulkCopy sqlBulkCopy, IOrderedEnumerable<KeyValuePair<int, string>> properties, string tableName = null)
         {
