@@ -1,4 +1,5 @@
-﻿using AdoNetCoreUtilities.Domain.Interfaces;
+﻿using AdoNetCoreUtilities.Domain.Base;
+using AdoNetCoreUtilities.Domain.Interfaces;
 using AdoNetCoreUtilities.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace AdoNetCoreUtilities.Classes
 {
-    public abstract class AbstractSqlRepository<T> : ISqlRepository<T>
-        where T: class, new()
+    public abstract class AbstractSqlRepository<TEntity, TKey> : ISqlRepository<TEntity>
+        where TEntity: AdoEntityBase<TKey>, new()
+        where TKey: struct
     {
         private readonly IConfiguration configuration;
         protected abstract string ConfigurationConnectionStringKey { get; }
@@ -22,9 +24,9 @@ namespace AdoNetCoreUtilities.Classes
             this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task<IEnumerable<T>> GetAsync()
+        public async Task<IEnumerable<TEntity>> GetAsync()
         {
-            var data = new List<T>();
+            var data = new List<TEntity>();
 
             using(var connection = new SqlConnection(configuration.GetConnectionString(ConfigurationConnectionStringKey)))
             {
@@ -47,10 +49,10 @@ namespace AdoNetCoreUtilities.Classes
             }
         }
 
-        public async Task<IEnumerable<T>> GetAsync(params Func<T, bool>[] functions)
+        public async Task<IEnumerable<TEntity>> GetAsync(params Func<TEntity, bool>[] functions)
             => AggregateWhereFunctions(await GetAsync(), functions);
 
-        public async Task InsertOrUpdateAsync(IEnumerable<T> source)
+        public async Task InsertOrUpdateAsync(IEnumerable<TEntity> source)
         {
             using (var connection = new SqlConnection(configuration.GetConnectionString(ConfigurationConnectionStringKey)))
             {
@@ -68,7 +70,7 @@ namespace AdoNetCoreUtilities.Classes
 
                             await BulkInsert(source, temporaryTableName);
 
-                            var properties = OrderAttributeExtensions.GetPropertiesOrder<T>();
+                            var properties = OrderAttributeExtensions.GetPropertiesOrder<TEntity>();
 
                             command.CommandText =
                                 @$"MERGE {SqlTableName} AS TARGET
@@ -102,13 +104,13 @@ namespace AdoNetCoreUtilities.Classes
             }
         }
 
-        public async Task BulkInsert(IEnumerable<T> source, string tableName = null)
+        public async Task BulkInsert(IEnumerable<TEntity> source, string tableName = null)
         {
             using (var connection = new SqlConnection(configuration.GetConnectionString(ConfigurationConnectionStringKey)))
             {
                 using (var sqlBulkCopy = new SqlBulkCopy(connection))
                 {
-                    var orderedProperties = OrderAttributeExtensions.GetPropertiesOrder<T>();
+                    var orderedProperties = OrderAttributeExtensions.GetPropertiesOrder<TEntity>();
 
                     var dataTable = FillDataTable(source, orderedProperties);
 
@@ -124,21 +126,21 @@ namespace AdoNetCoreUtilities.Classes
         protected virtual void SetGetCommand(SqlCommand command)
             => command.CommandText = @$"SELECT * FROM {SqlTableName}";
 
-        protected virtual T Map(SqlDataReader reader) 
+        protected virtual TEntity Map(SqlDataReader reader) 
         {
-            var mappedData = new T();
+            var mappedData = new TEntity();
 
-            typeof(T).GetProperties().ToList().ForEach(x =>
+            typeof(TEntity).GetProperties().ToList().ForEach(x =>
             {
                 mappedData.GetType()
                     .GetProperty(x.Name)
-                    .SetValue(mappedData, reader.SafeGet<object>(OrderAttributeExtensions.GetOrderAttributeValue<T>(x.Name)));
+                    .SetValue(mappedData, reader.SafeGet<object>(OrderAttributeExtensions.GetOrderAttributeValue<TEntity>(x.Name)));
             });
 
             return mappedData;
         }
 
-        protected IEnumerable<T> AggregateWhereFunctions(IEnumerable<T> source, IEnumerable<Func<T, bool>> functions)
+        protected IEnumerable<TEntity> AggregateWhereFunctions(IEnumerable<TEntity> source, IEnumerable<Func<TEntity, bool>> functions)
             => functions.Aggregate(source, (source, query) => source.Where(query));
 
         private void SetBulkCopy(SqlBulkCopy sqlBulkCopy, IOrderedEnumerable<KeyValuePair<int, string>> properties, string tableName = null)
@@ -152,11 +154,11 @@ namespace AdoNetCoreUtilities.Classes
 
         }
 
-        private DataTable FillDataTable(IEnumerable<T> source, IOrderedEnumerable<KeyValuePair<int, string>> properties)
+        private DataTable FillDataTable(IEnumerable<TEntity> source, IOrderedEnumerable<KeyValuePair<int, string>> properties)
         {
             var dataTable = new DataTable();
 
-            var baseSource = source.FirstOrDefault() ?? new T();
+            var baseSource = source.FirstOrDefault() ?? new TEntity();
 
             foreach (var property in properties)
             {

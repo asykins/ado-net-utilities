@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace AdoNetCoreUtilities.Domain.Interfaces
 {
-    public interface ISqlRepository<T>
+    public interface ISqlRepository<TEntity>
     {
-        Task<IEnumerable<T>> GetAsync();
-        Task<IEnumerable<T>> GetAsync(params Func<T, bool>[] functions);
-        Task InsertOrUpdateAsync(IEnumerable<T> source);
-        Task BulkInsert(IEnumerable<T> source, string tableName = null);
+        Task<IEnumerable<TEntity>> GetAsync();
+        Task<IEnumerable<TEntity>> GetAsync(params Func<TEntity, bool>[] functions);
+        Task InsertOrUpdateAsync(IEnumerable<TEntity> source);
+        Task BulkInsert(IEnumerable<TEntity> source, string tableName = null);
     }
 }
