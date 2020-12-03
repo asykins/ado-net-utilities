@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 namespace AdoNetCoreUtilities.Classes.Base
 {
     public abstract class AbstractSqlRepository<TEntity, TKey> : ISqlRepository<TEntity>
-        where TEntity: AdoEntityBase<TKey>, new()
-        where TKey: struct
+        where TEntity : AdoEntityBase<TKey>, new()
+        where TKey : struct
     {
         private readonly IConfiguration configuration;
         protected abstract string ConfigurationConnectionStringKey { get; }
@@ -28,17 +28,17 @@ namespace AdoNetCoreUtilities.Classes.Base
         {
             var data = new List<TEntity>();
 
-            using(var connection = new SqlConnection(configuration.GetConnectionString(ConfigurationConnectionStringKey)))
+            using (var connection = new SqlConnection(configuration.GetConnectionString(ConfigurationConnectionStringKey)))
             {
-                using(var command = connection.CreateCommand())
+                using (var command = connection.CreateCommand())
                 {
                     SetGetCommand(command);
 
                     await connection.OpenAsync();
 
-                    using(var reader = await command.ExecuteReaderAsync())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while(await reader.ReadAsync())
+                        while (await reader.ReadAsync())
                         {
                             data.Add(Map(reader));
                         }
@@ -126,7 +126,7 @@ namespace AdoNetCoreUtilities.Classes.Base
         protected virtual void SetGetCommand(SqlCommand command)
             => command.CommandText = @$"SELECT * FROM {SqlTableName}";
 
-        protected virtual TEntity Map(SqlDataReader reader) 
+        protected virtual TEntity Map(SqlDataReader reader)
         {
             var mappedData = new TEntity();
 
@@ -144,7 +144,7 @@ namespace AdoNetCoreUtilities.Classes.Base
         {
             sqlBulkCopy.DestinationTableName = tableName ?? SqlTableName;
 
-            for(var index = 0; index < properties.Count(); index++)
+            for (var index = 0; index < properties.Count(); index++)
             {
                 sqlBulkCopy.ColumnMappings.Add(properties.ElementAt(index).Value, properties.ElementAt(index).Value);
             }
@@ -162,11 +162,11 @@ namespace AdoNetCoreUtilities.Classes.Base
                 dataTable = dataTable.AddDataColumn(property.Value, baseSource);
             }
 
-            foreach(var item in source)
+            foreach (var item in source)
             {
                 var dataRow = dataTable.NewRow();
 
-                foreach(var property in properties)
+                foreach (var property in properties)
                 {
                     dataRow = dataRow.AddDataRowValues(property.Value, item.GetType().GetProperty(property.Value).GetValue(item));
                 }

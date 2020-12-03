@@ -7,7 +7,7 @@ namespace AdoNetCoreUtilities.Classes.Base
     public abstract class AbstractGuidKeySqlRepository<TEntity> : AbstractSqlRepository<TEntity, Guid>
         where TEntity : AdoEntityBase<Guid>, new()
     {
-        protected AbstractGuidKeySqlRepository(IConfiguration configuration) 
+        protected AbstractGuidKeySqlRepository(IConfiguration configuration)
             : base(configuration) { }
     }
 }

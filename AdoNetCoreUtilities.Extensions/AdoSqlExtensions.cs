@@ -5,7 +5,7 @@ using System.Data;
 namespace AdoNetCoreUtilities.Extensions
 {
     public static class AdoSqlExtensions
-    { 
+    {
         /// <summary>
         /// Get the value at the specified index or return the default.
         /// </summary>
@@ -33,7 +33,7 @@ namespace AdoNetCoreUtilities.Extensions
         public static IDbCommand SafeSet<T>
             (this SqlCommand sqlDbCommand, string parameterName, SqlDbType sqlDbType, T value)
         {
-            if(value == null)
+            if (value == null)
                 sqlDbCommand.Parameters.Add($"@{parameterName}", sqlDbType).Value = DBNull.Value;
             else
                 sqlDbCommand.Parameters.Add($"@{parameterName}", sqlDbType).Value = value;
