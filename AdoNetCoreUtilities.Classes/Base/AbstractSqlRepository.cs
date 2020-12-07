@@ -1,4 +1,5 @@
-﻿using AdoNetCoreUtilities.Domain.Base;
+﻿using AdoNetCoreUtilities.Domain.Attributes;
+using AdoNetCoreUtilities.Domain.Base;
 using AdoNetCoreUtilities.Domain.Interfaces;
 using AdoNetCoreUtilities.Extensions;
 using Microsoft.Data.SqlClient;
@@ -70,7 +71,7 @@ namespace AdoNetCoreUtilities.Classes.Base
 
                             await BulkInsert(source, temporaryTableName);
 
-                            var properties = OrderAttributeExtensions.GetPropertiesOrder<TEntity>();
+                            var properties = OrderAttribute.GetPropertiesOrder<TEntity>();
 
                             command.CommandText =
                                 @$"MERGE {SqlTableName} AS TARGET
@@ -93,7 +94,7 @@ namespace AdoNetCoreUtilities.Classes.Base
 
                             await transaction.CommitAsync();
                         }
-                        catch (SqlException exception)
+                        catch
                         {
                             await transaction.RollbackAsync();
 
@@ -110,7 +111,7 @@ namespace AdoNetCoreUtilities.Classes.Base
             {
                 using (var sqlBulkCopy = new SqlBulkCopy(connection))
                 {
-                    var orderedProperties = OrderAttributeExtensions.GetPropertiesOrder<TEntity>();
+                    var orderedProperties = OrderAttribute.GetPropertiesOrder<TEntity>();
 
                     var dataTable = FillDataTable(source, orderedProperties);
 
@@ -134,7 +135,7 @@ namespace AdoNetCoreUtilities.Classes.Base
             {
                 mappedData.GetType()
                     .GetProperty(x.Name)
-                    .SetValue(mappedData, reader.SafeGet<object>(OrderAttributeExtensions.GetOrderAttributeValue<TEntity>(x.Name)));
+                    .SetValue(mappedData, reader.SafeGet<object>(OrderAttribute.GetOrderAttributeValue<TEntity>(x.Name)));
             });
 
             return mappedData;
